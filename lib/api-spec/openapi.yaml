@@ -1,0 +1,284 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: bot
+    description: Bot status and stats
+  - name: moderation
+    description: Moderation actions
+  - name: leaderboards
+    description: Leaderboards and rankings
+  - name: giveaways
+    description: Active giveaways
+  - name: jails
+    description: Active jails
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /bot/stats:
+    get:
+      operationId: getBotStats
+      tags: [bot]
+      summary: Get bot statistics
+      description: Returns overall bot stats including guild count, uptime, and status
+      responses:
+        "200":
+          description: Bot stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BotStats"
+
+  /bot/guilds:
+    get:
+      operationId: getBotGuilds
+      tags: [bot]
+      summary: Get all guilds
+      description: Returns list of guilds the bot is in
+      responses:
+        "200":
+          description: List of guilds
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Guild"
+
+  /moderation/warnings:
+    get:
+      operationId: getRecentWarnings
+      tags: [moderation]
+      summary: Get recent warnings
+      description: Returns recent warnings across all guilds
+      responses:
+        "200":
+          description: List of warnings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WarningEntry"
+
+  /moderation/jails:
+    get:
+      operationId: getActiveJails
+      tags: [jails]
+      summary: Get active jails
+      description: Returns currently jailed members
+      responses:
+        "200":
+          description: List of active jails
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/JailEntry"
+
+  /leaderboards/messages:
+    get:
+      operationId: getMessageLeaderboard
+      tags: [leaderboards]
+      summary: Get message leaderboard
+      description: Returns top message senders across guilds
+      responses:
+        "200":
+          description: Message leaderboard
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LeaderboardEntry"
+
+  /leaderboards/invites:
+    get:
+      operationId: getInviteLeaderboard
+      tags: [leaderboards]
+      summary: Get invite leaderboard
+      description: Returns top inviters across guilds
+      responses:
+        "200":
+          description: Invite leaderboard
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LeaderboardEntry"
+
+  /giveaways/active:
+    get:
+      operationId: getActiveGiveaways
+      tags: [giveaways]
+      summary: Get active giveaways
+      description: Returns currently running giveaways
+      responses:
+        "200":
+          description: List of active giveaways
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Giveaway"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    BotStats:
+      type: object
+      properties:
+        tag:
+          type: string
+        online:
+          type: boolean
+        guildCount:
+          type: integer
+        totalMembers:
+          type: integer
+        uptimeSeconds:
+          type: number
+        commandsRegistered:
+          type: integer
+      required:
+        - tag
+        - online
+        - guildCount
+        - totalMembers
+        - uptimeSeconds
+        - commandsRegistered
+
+    Guild:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        memberCount:
+          type: integer
+        iconUrl:
+          type: string
+          nullable: true
+      required:
+        - id
+        - name
+        - memberCount
+        - iconUrl
+
+    WarningEntry:
+      type: object
+      properties:
+        guildId:
+          type: string
+        userId:
+          type: string
+        reason:
+          type: string
+        moderatorId:
+          type: string
+        timestamp:
+          type: string
+      required:
+        - guildId
+        - userId
+        - reason
+        - moderatorId
+        - timestamp
+
+    JailEntry:
+      type: object
+      properties:
+        guildId:
+          type: string
+        userId:
+          type: string
+        reason:
+          type: string
+        jailedAt:
+          type: string
+        expiresAt:
+          type: string
+          nullable: true
+      required:
+        - guildId
+        - userId
+        - reason
+        - jailedAt
+        - expiresAt
+
+    LeaderboardEntry:
+      type: object
+      properties:
+        guildId:
+          type: string
+        userId:
+          type: string
+        count:
+          type: integer
+        rank:
+          type: integer
+      required:
+        - guildId
+        - userId
+        - count
+        - rank
+
+    Giveaway:
+      type: object
+      properties:
+        id:
+          type: string
+        guildId:
+          type: string
+        channelId:
+          type: string
+        prize:
+          type: string
+        winnersCount:
+          type: integer
+        endsAt:
+          type: string
+        entrantCount:
+          type: integer
+        hostId:
+          type: string
+      required:
+        - id
+        - guildId
+        - channelId
+        - prize
+        - winnersCount
+        - endsAt
+        - entrantCount
+        - hostId
